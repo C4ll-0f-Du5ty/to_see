@@ -103,9 +103,9 @@ body {
     background: var(--tenne-tawny-dark);
 }
 
-.search-btn.active:hover {
+/* .search-btn.active:hover {
     background: var(--tenne-tawny-dark);
-}
+} */
 
 .meal-result {
     margin-top: 4rem;
