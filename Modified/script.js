@@ -27,7 +27,21 @@ document.querySelectorAll('.search-btn').forEach(button => {
       document.getElementById(searchBarId).classList.add('active');
     });
   });
-  
+
+
+  // Updated search functionality based on active input
+document.querySelectorAll('#search-bar-container button').forEach(button => {
+    button.addEventListener('click', function() {
+      const activeSearchBar = document.querySelector('.search-bar.active');
+      if (activeSearchBar.id === 'ingredients-search') {
+        getMealListByIngredients();
+      } else if (activeSearchBar.id === 'dish-name-search') {
+        getMealListByName();
+      } else if (activeSearchBar.id === 'food-type-search') {
+        getMealListByCategory();
+      }
+    });
+  });
 
 
 
@@ -114,4 +128,76 @@ function mealRecipeModal(meal){
     `;
     mealDetailsContent.innerHTML = html;
     mealDetailsContent.parentElement.classList.add('showRecipe');
+}
+
+
+// Search by dish name
+function getMealListByName() {
+    let searchInputTxt = document.getElementById('dish-name-input').value.trim();
+    const header = "db2129aba91046f3a01b292d60dd8560";
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const mealList = document.getElementById('meal');
+
+    loadingIndicator.style.display = "block";
+    mealList.innerHTML = "";
+
+    fetch(`https://api.spoonacular.com/recipes/complexSearch?query=${searchInputTxt}&apiKey=${header}&number=50`)
+        .then(response => response.json())
+        .then(data => {
+            displayMeals(data.results);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            loadingIndicator.style.display = "none";
+        });
+}
+
+// Search by food type (category)
+function getMealListByCategory() {
+    let searchInputTxt = document.getElementById('food-type-input').value.trim();
+    const header = "db2129aba91046f3a01b292d60dd8560";
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const mealList = document.getElementById('meal');
+
+    loadingIndicator.style.display = "block";
+    mealList.innerHTML = "";
+
+    fetch(`https://api.spoonacular.com/recipes/complexSearch?type=${searchInputTxt}&apiKey=${header}&number=50`)
+        .then(response => response.json())
+        .then(data => {
+            displayMeals(data.results);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            loadingIndicator.style.display = "none";
+        });
+}
+
+
+function displayMeals(data) {
+    const mealList = document.getElementById('meal');
+    let html = "";
+
+    if (data && data.length > 0) {
+        data.forEach(meal => {
+            html += `
+                <div class="meal-item" data-id="${meal.id}">
+                    <div class="meal-img">
+                        <img src="${meal.image}" alt="food">
+                    </div>
+                    <div class="meal-name">
+                        <h3>${meal.title}</h3>
+                        <a href="#" class="recipe-btn">Get Recipe</a>
+                    </div>
+                </div>
+            `;
+        });
+        mealList.classList.remove('notFound');
+    } else {
+        html = "Sorry, we didn't find any meal!";
+        mealList.classList.add('notFound');
+    }
+
+    document.getElementById('loading-indicator').style.display = "none";
+    mealList.innerHTML = html;
 }
